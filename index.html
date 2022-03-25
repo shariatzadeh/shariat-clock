@@ -2,149 +2,260 @@
 <html>
 <head>
   <title>ساعت</title>
+  <meta charset="UTF-8">
   <meta name=  "eastern-clock"    content="#aa7700" />
   <meta name="theme-color"        content="black" />
   <link rel="manifest"        href="manifest.json" />
 </head>
   
-<body dir=rtl
-style="background-color:#888"
->
+<body dir=rtl style="background-color:#888; font-family:'b mitra'; font-size:24pt;">
+
 <p align=center>
 
-<canvas  id="canvas" width="400" height="400"></canvas>
-</p>
+<div align=center>
+ساعت شریعت: <div dir=rtl id='pnowshariat' style='display: inline-block; font-weight:bold; color:blue;'></div>
+</div>
+
 <p align=center>
-Western Clock
-<br/>
-<canvas  id="canvas2" width="300" height="300" style='background-color: darkgray;'></canvas>
+<canvas  id="canvas2" width="800" height="800" style=''></canvas>
 </p>
+
+<div align=center style=' font-size:18pt;'>
+ساعت غربی: <div dir=rtl id='pnow' style='align:center; display: inline-block;'></div>
+</div>
+
+</p>
+ساعت شریعت: <br/>
+1. تطبیق با خطای کمتر از 10% با مفهوم 12 ساعته بودن روز و 12 ساعته بودن شب. <br/>
+2. تطبیق با خطای کمتر از 10% با مفهوم شبانه روز شرعی (مثلا شب و روز نیمه شعبان یا شب و روز جمعه) <br/>
+3. نمایش مقدار رفته و  باقیمانده از روز و شب <br/>
+4. جانمایی صحیح نیمه روز و نیمه شب <br/>
+5. اصلاح جهت چرخش  مطابق گردش ظاهری خورشید و ستارگان<br/>
+6. اصلاح مفهوم طول ساعت و اشاره صحیح عقربه ساعت به محل دقیق در ساعت فعلی (ابتدا، میانه، انتهای ساعت فعلی)
+
+<canvas  id="canvas" width="600" height="600"></canvas>
+
 
 <script>
 
 
 setInterval(drawClocks, 1000);
 
-
-function drawClocks() {
-var islamicClock = true;
-var canvas1 = document.getElementById("canvas");
-drawClock(canvas1, islamicClock)
-
-var islamicClock = false;
-
-var canvas2 = document.getElementById("canvas2");
-drawClock(canvas2, islamicClock)
+// check if the DST is in effect or not.
+function isDST(d) {
+    let jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
+    let jul = new Date(d.getFullYear(), 6, 1).getTimezoneOffset();
+    return Math.max(jan, jul) !== d.getTimezoneOffset();    
 }
 
-function drawClock(_canvas, islamicClock) {
+function getNowShariat(shariatClock=true) {
+    var now = new Date();
+		if (isDST(now)) {//revert daylight saving, if applied
+//			now = new Date(now.getTime() - 60*60000);
+		}
+		if (shariatClock) {
+			now = new Date(now.getTime() + 6*60*60000)
+		}
+		return now;
+}
+
+function drawClocks() {
+	var canvas1 = document.getElementById("canvas");
+	drawClock(canvas1, true)
+
+	var canvas2 = document.getElementById("canvas2");
+	drawClock(canvas2, true, 24)
+
+	var pnow = document.getElementById("pnow");
+	pnow.innerHTML = (new Date()).toLocaleTimeString();
+	
+	
+	var pnowshariat = document.getElementById("pnowshariat");
+	var now = getNowShariat();
+	var hour = now.getHours();
+	var dayOrNight = (hour >= 12);
+	hour = (hour +12-1 ) % 12 + 1;
+	var strNow = "'" + hour.toString() + ':' + now.getMinutes() + (dayOrNight ? 'روز' : 'شب');
+	pnowshariat.innerHTML = strNow;
+}
+
+
+function drawClock(_canvas, shariatClock, hours=12) {
 var ctx = _canvas.getContext("2d");
-var radius = _canvas.height / 2;
+var radius = Math.min(_canvas.width, _canvas.height) / 2;
 ctx.translate(radius, radius);
 radius2 = radius * 0.90;
-  drawFace(ctx, radius2, islamicClock);
-  drawNumbers(ctx, radius2, islamicClock);
-  drawTime(ctx, radius2, islamicClock);
+  drawFace(ctx, radius2, shariatClock, hours);
+  drawNumbers(ctx, radius2, shariatClock, hours);
+  drawTime(ctx, radius2, shariatClock, hours);
 ctx.translate(-radius, -radius);
 }
 
-function drawFace(ctx, radius, islamicClock) {
+function print(ctx, text, x, y, rot, textrotate=0) {
+    ctx.textAlign="center";
+    ctx.translate(x, y);
+    ctx.rotate(textrotate);
+    ctx.fillText(text, 0, 0);
+    ctx.rotate(-textrotate);
+    ctx.translate(-x, -y);
+}
+
+
+function drawFace(ctx, radius, shariatClock, hours) {
   var grad;
+  if (hours == 12) {
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+	  ctx.fillStyle = 'white';
+	  ctx.fill();
+  } else {
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, 0, Math.PI);
+      ctx.closePath();
+	  ctx.fillStyle = '#def';
+	  ctx.fill();
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, Math.PI, 2 * Math.PI);
+      ctx.closePath();
+	  ctx.fillStyle = '#ffe';
+	  ctx.fill();
+  
+  }
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, 2*Math.PI);
-  ctx.fillStyle = 'white';
-  ctx.fill();
   grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
-  grad.addColorStop(0, '#333');
-  grad.addColorStop(0.5, 'white');
-  grad.addColorStop(1, '#333');
+  grad.addColorStop(0, '#213');
+  grad.addColorStop(0.5, '#aaa');
+  grad.addColorStop(1, '#213');
   ctx.strokeStyle = grad;
   ctx.lineWidth = radius*0.1;
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(0, 0, radius*0.1, 0, 2*Math.PI);
-  ctx.fillStyle = '#333';
+  ctx.arc(0, 0, radius*0.05, 0, 2*Math.PI);
+  ctx.fillStyle = '#213';
   ctx.fill();
+
+  
+  if (hours == 24) {
+		ctx.font = radius*0.2 + "px";
+		print(ctx, "ر و ز", 0, -radius*0.3);
+		print(ctx, "شـــب", 0, radius*0.3, 0, -Math.PI);
+		ctx.font = radius*0.1 + "px 'b mitra'";
+		print(ctx, "غروب", -radius*0.5, 0, 0, 0);
+  }
+
+	var offset = (hours == 24) ? -Math.PI / 2 : - Math.PI;
+
+	var r = radius*0.9;
+	ctx.font = 0.1*radius + "px 'b mitra'";
+	ctx.fillStyle = 'red';
+	for (var minu = 0; minu < 60; minu += 5) {
+		var ang = -Math.PI*2/60*(minu);
+		ang += offset;
+		print(ctx, minu.toString(), r*Math.sin(ang), -r*Math.cos(ang), 0, ang);
+	}
 }
 
-function drawNumbers(ctx, radius, islamicClock) {
-  var ang;
-  var num;
+
+function drawNumbers(ctx, radius, shariatClock, hours) {
   var fontface = '';
-  if (islamicClock) fontface = " 'B mitra'";
+  if (shariatClock) fontface = " 'B mitra'";
   ctx.font = radius*0.2 + "px" + fontface;
   ctx.textBaseline="middle";
   ctx.textAlign="center";
-  for(num = 1; num < 13; num++){
-    
-	if (islamicClock) { 
-		ang = -num * Math.PI / 6;
-	}
-	else {
-		ang = num * Math.PI / 6;
+	
+	ctx.strokeStyle = 'red';
+	ctx.lineWidth = 2;
+  for(var num = 0; num < 60; num++){
+		var ang = num * (2 * Math.PI) / 60;
+		ctx.rotate(ang);
+		ctx.beginPath();
+		ctx.moveTo(0,-radius*0.95);
+		ctx.lineTo(0, -radius*0.92);
+		ctx.stroke();
+		ctx.rotate(-ang);
 	}
 	
-	if (islamicClock) { ang += Math.PI / 12;}
-    ctx.rotate(ang);
-    ctx.translate(0, -radius*0.85);
-    ctx.rotate(-ang);
-    ctx.fillText(num.toString(), 0, 0);
-    ctx.rotate(ang);
-    ctx.translate(0, radius*0.85);
-    ctx.rotate(-ang);
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = 'darkgray';
+	var direction = (shariatClock) ? 1 : -1;
+	var offset = (hours == 24) ? -Math.PI / 2 : - Math.PI;
+	ctx.fillStyle = 'black';
+  for(var num = 1; num <= hours; num++){			
+		var ang = -(num-1) * (2 * Math.PI) / hours;
+		ang *= direction;
+		ang += offset;
+		
+		var ang_ = ang;
+		if (shariatClock) { 
+			ang_ -= Math.PI / (hours);
+		}
+		ctx.rotate(ang_);
+		ctx.translate(0, -radius*0.71);
+		ctx.rotate(-ang_);
+		var numString = num.toString();
+		numString = ((num-1) % 12 + 1).toString();
+		ctx.fillText(numString, 0, 0);
+		ctx.rotate(ang_);
+		ctx.translate(0, radius*0.71);
+		ctx.rotate(-ang_);
 
-	if (islamicClock) { 
-		ang = -num * Math.PI / 6;
-	}
-	else {
-		ang = num * Math.PI / 6;
-	}
-    ctx.lineWidth = 3;
-    ctx.rotate(-ang);
-    ctx.moveTo(0,-radius*0.92);
-    ctx.lineTo(0, -radius*0.95);
-    ctx.stroke();
-    ctx.rotate(ang);
+		ctx.rotate(ang);
+		if (num != 1) {
+			ctx.moveTo(0,-radius*0.55);
+			ctx.lineTo(0, -radius*(hours != 24 || num % 2 == 1 ? 0.95: 0.8));
+		}
+		else {
+			ctx.moveTo(0,-radius*0.25);
+			ctx.lineTo(0, -radius*0.95);
+		}
+		ctx.stroke();
+		ctx.rotate(-ang);
 
   }
 }
 
-function drawTime(ctx, radius, islamicClock){
+function drawTime(ctx, radius, shariatClock, hours){
 //https://www.erfan.ir/mafatih392/%D8%AF%D8%B9%D8%A7%D9%87%D8%A7%DB%8C-%D9%87%D8%B1-%D8%B3%D8%A7%D8%B9%D8%AA%DB%8C-%D8%AF%D8%B1-%D8%B7%D9%88%D9%84-%D8%B1%D9%88%D8%B2-%DA%A9%D9%84%DB%8C%D8%A7%D8%AA-%D9%85%D9%81%D8%A7%D8%AA%DB%8C%D8%AD-%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%86-%D8%A8%D8%A7-%D8%AA%D8%B1%D8%AC%D9%85%D9%87-%D8%A7%D8%B3%D8%AA%D8%A7%D8%AF-%D8%AD%D8%B3%DB%8C%D9%86-%D8%A7%D9%86%D8%B5%D8%A7%D8%B1%DB%8C%D8%A7%D9%86
-    var now = new Date();
-	if (islamicClock) {
-		now = new Date(now.getTime() + 6*60*60000)
-	}
-	var direction = -1;
-	if (islamicClock) {
-		direction = 1;
-	}
+    var now = getNowShariat(true);
+		
+		var direction = (shariatClock) ? 1 : -1;
     var hour = now.getHours();
     var minute = now.getMinutes();
     var second = now.getSeconds();
 	
     //hour
-    hour=hour%12;
-    hour=(hour*Math.PI/6)+    (minute*Math.PI/(6*60))+    (second*Math.PI/(360*60));
-    drawHand(ctx, direction*hour, radius*0.5, radius*0.07, 'black');
+    hour = (hour - 1) % hours;
+    hour = (hour*Math.PI*2/hours) +    (minute*Math.PI*2/hours/60)+    (second*Math.PI/(360*60));
+		var offset = (hours == 24) ? (Math.PI / 2) :- Math.PI;
+    minute=(minute*Math.PI*2/60)+(second*Math.PI/(30*60));
+    second=(second*Math.PI*2/60);
+
+    drawHandOutlined(ctx, direction*(hour + offset), radius*0.6, radius*0.07, 'darkgray');
     //minute
-    minute=(minute*Math.PI/30)+(second*Math.PI/(30*60));
-    drawHand(ctx, direction*minute, radius*0.8, radius*0.05, 'black');
+    drawHandOutlined(ctx, direction*(minute + offset), radius*0.86, radius*0.04, 'darkgray');
     // second
-    second=(second*Math.PI/30);
-    drawHand(ctx, direction*second, radius*0.8, radius*0.02, 'red');
+    drawHandOutlined(ctx, direction*(second + offset), radius*0.85, radius*0.01, 'red');
 }
 
+
+function drawHandOutlined(ctx, pos, length, width, color) {
+	drawHand(ctx, pos, length, width+1, 'black');
+	drawHand(ctx, pos, length, width, color);
+}
+
+ 
 function drawHand(ctx, pos, length, width, color) {
 	ctx.strokeStyle = color;
-    ctx.beginPath();
-    ctx.lineWidth = width;
-    ctx.lineCap = "round";
-    ctx.moveTo(0,0);
-    ctx.rotate(-pos);
-    ctx.lineTo(0, -length);
-    ctx.stroke();
-    ctx.rotate(pos);
+	ctx.beginPath();
+	ctx.lineWidth = width;
+	ctx.lineCap = "round";
+	ctx.moveTo(0,0);
+	ctx.rotate(-pos);
+	ctx.moveTo(0, length/10);
+	ctx.lineTo(0, -length);
+	ctx.stroke();
+	ctx.rotate(pos);
 }
 </script>
 
