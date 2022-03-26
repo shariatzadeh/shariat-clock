@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang='fa'>
+<html lang='fa' dir="rtl">
 <head>
-  <meta charset="UTF-8">
-	<META HTTP-EQUIV="CONTENT-LANGUAGE" CONTENT="fa">
+  <meta charset="UTF-8" />
+	<META HTTP-EQUIV="CONTENT-LANGUAGE" CONTENT="fa" />
   <meta name="author" content="shariat" />
   <meta name="description"    content="shariat-clock" />
-	<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="Public">
+	<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="Public" />
   <link rel="manifest"        href="manifest.json" />
   <meta name="theme-color"        content="black" />
   <title>ساعت</title>
 </head>
   
-<body dir=rtl style="background-color:#888; font-family:'b mitra'; font-size:2em;">
+<body style="background-color:#888; font-family:'b mitra'; font-size:2em;">
 
 <p align=center>
 
 <div align=center>
 ساعت شریعت: <br/>
-<div dir=rtl id='pnowshariat' style='display: inline-block; font-weight:bold; color:blue;'></div>
+<div id='pnowshariat' style='display: inline-block; font-weight:bold; color:blue; font-size:2em;'></div>
 </div>
 
 <p align=center>
@@ -25,12 +25,12 @@
 </p>
 
 <div align=center style=' font-size:1em;'>
-ساعت غربی: <div dir=rtl id='pnow' style='align:center; display: inline-block;'></div>
+ساعت غربی: <div id='pnow' style='align:center; display: inline-block;'></div>
 </div>
 
 </p>
 <div style=' font-size:1em;'>
-ساعت شریعت: <br/>
+خصوصیات: <br/>
 1. تطبیق با خطای کمتر از 10% با مفهوم 12 ساعته بودن روز و 12 ساعته بودن شب. <br/>
 2. تطبیق با خطای کمتر از 10% با مفهوم شبانه روز شرعی (مثلا شب و روز نیمه شعبان یا شب و روز جمعه) <br/>
 3. نمایش مقدار رفته و  باقیمانده از روز و شب <br/>
@@ -39,11 +39,10 @@
 6. اصلاح مفهوم طول ساعت و اشاره صحیح عقربه ساعت به محل دقیق در ساعت فعلی (ابتدا، میانه، انتهای ساعت فعلی)
 </div>
 
-<canvas  id="canvas" width="600" height="600"></canvas>
+<canvas id="canvas" width="700" height="700"></canvas>
 
 
 <script>
-
 
 setInterval(drawClocks, 1000);
 
