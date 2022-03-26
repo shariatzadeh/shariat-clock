@@ -11,23 +11,25 @@
   <title>ساعت</title>
 </head>
   
-<body dir=rtl style="background-color:#888; font-family:'b mitra'; font-size:24pt;">
+<body dir=rtl style="background-color:#888; font-family:'b mitra'; font-size:2em;">
 
 <p align=center>
 
 <div align=center>
-ساعت شریعت: <div dir=rtl id='pnowshariat' style='display: inline-block; font-weight:bold; color:blue;'></div>
+ساعت شریعت: <br/>
+<div dir=rtl id='pnowshariat' style='display: inline-block; font-weight:bold; color:blue;'></div>
 </div>
 
 <p align=center>
 <canvas  id="canvas2" width="800" height="800" style=''></canvas>
 </p>
 
-<div align=center style=' font-size:18pt;'>
+<div align=center style=' font-size:1em;'>
 ساعت غربی: <div dir=rtl id='pnow' style='align:center; display: inline-block;'></div>
 </div>
 
 </p>
+<div style=' font-size:1em;'>
 ساعت شریعت: <br/>
 1. تطبیق با خطای کمتر از 10% با مفهوم 12 ساعته بودن روز و 12 ساعته بودن شب. <br/>
 2. تطبیق با خطای کمتر از 10% با مفهوم شبانه روز شرعی (مثلا شب و روز نیمه شعبان یا شب و روز جمعه) <br/>
@@ -35,6 +37,7 @@
 4. جانمایی صحیح نیمه روز و نیمه شب <br/>
 5. اصلاح جهت چرخش  مطابق گردش ظاهری خورشید و ستارگان<br/>
 6. اصلاح مفهوم طول ساعت و اشاره صحیح عقربه ساعت به محل دقیق در ساعت فعلی (ابتدا، میانه، انتهای ساعت فعلی)
+</div>
 
 <canvas  id="canvas" width="600" height="600"></canvas>
 
@@ -76,9 +79,20 @@ function drawClocks() {
 	var pnowshariat = document.getElementById("pnowshariat");
 	var now = getNowShariat();
 	var hour = now.getHours();
-	var dayOrNight = (hour >= 12);
+	var dayOrNight = (hour >= 12 || hour == 0);
 	hour = (hour +12-1 ) % 12 + 1;
-	var strNow = "'" + hour.toString() + ':' + now.getMinutes() + (dayOrNight ? 'روز' : 'شب');
+	var weekday = now.toLocaleString('fa-ir', {  weekday: 'long' });
+	var zekr = '';
+	switch ((now.getDay() + 1) % 7) {
+		case 0: zekr = 'یا رَبِّ الْعالَمِین'; break; //شنبه
+		case 1: zekr = 'یا ذَالجَلالِ وَ اْلاِکْرام'; break;
+		case 2: zekr = 'یا قاضیَ الحاجات'; break;
+		case 3: zekr = 'یا أَرْحَمَ الرَّاحِمِین'; break;
+		case 4: zekr = 'یا حَیُّ یا قَیّومُ'; break;
+		case 5: zekr = 'لا إِلهَ إِلَّا اللَّهُ المَلِک الحقّ المُبین'; break;
+		case 6: zekr = 'الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ و عجل فرجهم'; break;
+	}
+	var strNow = "'" + hour.toString() + ':' + now.getMinutes() + ' ' + (dayOrNight ? 'روز' : 'شب') + ' ' + weekday + ' <div style="color:green;">(' + zekr + ')</div>';
 	pnowshariat.innerHTML = strNow;
 }
 
@@ -140,7 +154,7 @@ function drawFace(ctx, radius, shariatClock, hours) {
 
   
   if (hours == 24) {
-		ctx.font = radius*0.2 + "px";
+  	ctx.font = 0.15*radius + "px 'b mitra'";
 		print(ctx, "ر و ز", 0, -radius*0.3);
 		print(ctx, "شـــب", 0, radius*0.3, 0, -Math.PI);
 		ctx.font = radius*0.1 + "px 'b mitra'";
