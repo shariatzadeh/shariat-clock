@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang='fa' dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+	<META HTTP-EQUIV="CONTENT-LANGUAGE" CONTENT="fa" />
+  <meta name="author" content="shariat" />
+  <meta name="description"    content="shariat-clock" />
+	<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="Public" max-age=31536000, immutable />
+  <link rel="manifest"        href="manifest.json" />
+  <meta name="theme-color"        content="black" />
+  <title>ساعت شریعت</title>
+	<style>
+input[type='checkbox'] { display: none; } 
+.wrap-collabsible { margin: 1.2rem 0; } 
+.lbl-toggle { display: block; font-weight: bold;  color: #DDD; background: #0069ff;  border-radius: 7px;  }
+ .lbl-toggle::before { content: ' '; display: inline-block; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 5px solid currentColor; vertical-align: middle; margin-right: .7rem; transform: translateY(-2px); transition: transform .2s ease-out; }
+ .toggle:checked+.lbl-toggle::before { transform: rotate(90deg) translateX(-3px); } 
+ .collapsible-content { max-height: 0px; overflow: hidden; transition: max-height .25s ease-in-out; } 
+ .toggle:checked + .lbl-toggle + .collapsible-content { max-height: 350px; }
+ .toggle:checked+.lbl-toggle { border-bottom-right-radius: 0; border-bottom-left-radius: 0; }
+ .collapsible-content .content-inner { background: rgba(0, 105, 255, .2); border-bottom: 1px solid rgba(0, 105, 255, .45); border-bottom-left-radius: 7px; border-bottom-right-radius: 7px; padding: .5rem 1rem; } 
+ .collapsible-content p { margin-bottom: 0; }
+ 
+ body {background-color:#888; font-family:'b mitra'; font-size:2em;}
+
+.zekr {
+color:green;
+}
+
+
+.clock {
+    width: 80vmin;
+    height: 80vmin;
+    margin: auto;
+    background: #eff center center;
+    border: 3vmin solid #000;
+    border-radius: 50%;
+    margin-top: 3vmin;
+    box-shadow: 
+        inset 40px 40px 90px rgba(0,0,0,.2),
+        inset 10px 10px 30px rgba(0,0,0,.5), 
+        20px 20px 30px rgba(0,0,0,.4),
+        40px 40px 60px rgba(0,0,0,.4);
+    position: relative;
+    z-index: 1;
+}
+
+.clock:before {
+    content: '';
+    width: 95%;
+    height: 95%;
+    border-radius: 50%;
+    display: block;
+    background: transparent;
+    border: 2vmin solid white;
+}
+
+/* highlight at top left of black outline */
+.clock:after {
+    content: '';
+    width: 105%;
+    height: 105%;
+    border-radius: 50%;
+    display: block;
+    background: transparent;
+    position: absolute;
+    top: -2.5%;
+    left: -2.5%;
+    box-shadow: -3px -3px 9px rgba(255,255,255,.8);
+}
+
+.label {
+    position: absolute;
+    top: 20%;
+    left: 46%;
+    font-size: 7vmin;
+}
+.labeli {
+    position: absolute;
+    bottom: 20%;
+    left: 42%;
+    font-size: 7vmin;
+    transform: rotate(180deg);
+}
+
+
+.hourhand,
+.secondhand,
+.minutehand {
+    width: 25vmin;
+    height: 2vmin;
+    background: #666;
+    position: absolute;
+    top: 40vmin;
+    left: calc(50% - 3.5vmin);
+    z-index: 2;
+    transform: rotate(-0deg);
+    transform-origin: 16%;
+    -webkit-filter: drop-shadow(12px 12px 7px rgba(0,0,0,0.5));
+	drop-shadow: (12px 12px 7px rgba(0,0,0,0.5));
+}
+
+.hourhand:after,
+.secondhand:after,
+.minutehand:after {
+    content: '';
+    background: #333;
+    width: 5vmin;
+    height: 5vmin;
+    border-radius: 50%;
+    z-index: 3;
+    position: absolute;
+    top: -1.5vmin;
+    left: 1.5vmin;
+}
+
+.hourhand {
+    border-top-right-radius: 20%;
+    border-bottom-right-radius: 20%;
+    box-shadow: -10px 0px 10px rgba(0,0,0,.4);
+}
+
+.minutehand {
+    width: 40vmin;
+    height: 1vmin;
+    top: 40.5vmin;
+    transform: rotate(-1deg);
+    transform-origin: 10%;
+    border-top-right-radius: 30%;
+    border-bottom-right-radius: 30%;
+    box-shadow: -10px 10px 10px rgba(0,0,0,.4);
+}
+
+.minutehand:before {
+        content: '';
+        width: 4.5vmin;
+        height: 4.5vmin;
+        border-radius: 50%;
+        z-index: 99;
+        position: absolute;
+        top: -1.7vmin;
+        left: 1.7vmin;
+        box-shadow: -2px -2px 7px rgba(255,255,255,.6);
+    }
+
+.minutehand:after {
+    top: -2vmin;
+}
+
+.secondhand {
+		background: red;
+    width: 35vmin;
+    height: .5vmin;
+    top: 40.75vmin;
+    transform: rotate(-1deg);
+    transform-origin: 11.5%;
+    box-shadow: -10px -10px 10px rgba(0,0,0,.4);
+}
+.secondhand:after {
+    top: -2.25vmin;
+}
+
+
+.tick {
+    height: .5vmin;
+    width: 58vmin;
+    top: 49.5%;
+    left: 5%;
+    border-left: 15vmin solid #888;
+    position: absolute;
+    transform: rotate(0deg) translate(300vmin, -0%);
+		align: center;
+		color: red;
+}
+
+	</style>
+</head>
+  
+<body onload="OnLoad()">
+
+<script>
+//https://codepen.io/nDav/pen/zvPJem/
+setInterval(drawClocks, 1000);
+
+function OnLoad() {
+//document.getElementById('saat1').innerHTML='sdfsdf';
+	saat1 = document.getElementById('saat1');
+	makeCSSClock(saat1);
+}
+
+
+// check if the DST is in effect or not.
+function isDST(d) {
+    let jan = new Date(d.getFullYear(), 0, 1).getTimezoneOffset();
+    let jul = new Date(d.getFullYear(), 6, 1).getTimezoneOffset();
+    return Math.max(jan, jul) !== d.getTimezoneOffset();    
+}
+
+function getNowShariat(shariatClock=true) {
+    var now = new Date();
+		if (isDST(now)) {//revert daylight saving, if applied
+//			now = new Date(now.getTime() - 60*60000);
+		}
+		if (shariatClock) {
+			now = new Date(now.getTime() + 6*60*60000)
+		}
+		return now;
+}
+
+
+function getDailyZekr(when) {
+var zekr = '';
+	switch ((when.getDay() + 1) % 7) {
+		case 0: zekr = 'یا رَبِّ الْعالَمِین'; break; //شنبه
+		case 1: zekr = 'یا ذَالجَلالِ وَ اْلاِکْرام'; break;
+		case 2: zekr = 'یا قاضیَ الحاجات'; break;
+		case 3: zekr = 'یا أَرْحَمَ الرَّاحِمِین'; break;
+		case 4: zekr = 'یا حَیُّ یا قَیّومُ'; break;
+		case 5: zekr = 'لا إِلهَ إِلَّا اللَّهُ المَلِک الحقّ المُبین'; break;
+		case 6: zekr = 'الّلهُمَّ صَلِّ عَلَی مُحَمَّدٍ وَآلِ مُحَمَّدٍ و عجل فرجهم'; break;
+	}
+	return zekr;
+}
+
+
+function getClockRotations(now, shariatClock, hours, houroffset, minuoffset) {
+//https://www.erfan.ir/mafatih392/%D8%AF%D8%B9%D8%A7%D9%87%D8%A7%DB%8C-%D9%87%D8%B1-%D8%B3%D8%A7%D8%B9%D8%AA%DB%8C-%D8%AF%D8%B1-%D8%B7%D9%88%D9%84-%D8%B1%D9%88%D8%B2-%DA%A9%D9%84%DB%8C%D8%A7%D8%AA-%D9%85%D9%81%D8%A7%D8%AA%DB%8C%D8%AD-%D8%A7%D9%84%D8%AC%D9%86%D8%A7%D9%86-%D8%A8%D8%A7-%D8%AA%D8%B1%D8%AC%D9%85%D9%87-%D8%A7%D8%B3%D8%AA%D8%A7%D8%AF-%D8%AD%D8%B3%DB%8C%D9%86-%D8%A7%D9%86%D8%B5%D8%A7%D8%B1%DB%8C%D8%A7%D9%86
+	
+	var direction = (shariatClock) ? 1 : -1;
+	var hour = now.getHours();
+	var minute = now.getMinutes();
+	var second = now.getSeconds();
+
+	//hour = (hour - 1) % hours; //?
+	hour = (hour) % hours;
+	hour = (hour*Math.PI*2/hours) +    (minute*Math.PI*2/hours/60)+    (second*Math.PI/(360*60));
+	minute=(minute*Math.PI*2/60)+(second*Math.PI/(30*60));
+	second=(second*Math.PI*2/60);
+	//second = Math.random()*100;
+
+	return [direction*(hour + houroffset), direction*(minute + minuoffset), direction*(second + minuoffset)];
+}
+
+
+function print(ctx, text, x, y, rot, textrotate=0) {
+    ctx.textAlign="center";
+    ctx.translate(x, y);
+    ctx.rotate(textrotate);
+    ctx.fillText(text, 0, 0);
+    ctx.rotate(-textrotate);
+    ctx.translate(-x, -y);
+}
+
+
+function drawFace(ctx, radius, shariatClock, hours, minuoffset) {
+  var grad;
+  if (hours == 12) {
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+	  ctx.fillStyle = 'white';
+	  ctx.fill();
+  } else {
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, 0, Math.PI);
+      ctx.closePath();
+	  ctx.fillStyle = '#def';
+	  ctx.fill();
+	  ctx.beginPath();
+	  ctx.arc(0, 0, radius, Math.PI, 2 * Math.PI);
+      ctx.closePath();
+	  ctx.fillStyle = '#ffe';
+	  ctx.fill();
+  
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, radius, 0, 2*Math.PI);
+  grad = ctx.createRadialGradient(0,0,radius*0.95, 0,0,radius*1.05);
+  grad.addColorStop(0, '#213');
+  grad.addColorStop(0.5, '#aaa');
+  grad.addColorStop(1, '#213');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = radius*0.1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, radius*0.05, 0, 2*Math.PI);
+  ctx.fillStyle = '#213';
+  ctx.fill();
+
+  
+  if (hours == 24) {
+  	ctx.font = 0.15*radius + "px 'b mitra'";
+		print(ctx, "ر و ز", 0, -radius*0.3);
+		print(ctx, "شـــب", 0, radius*0.3, 0, -Math.PI);
+		ctx.font = radius*0.1 + "px 'b mitra'";
+		print(ctx, "غروب", -radius*0.5, 0, 0, 0);
+  }
+
+	var r = radius*0.9;
+	ctx.font = 0.1*radius + "px 'b mitra'";
+	ctx.fillStyle = 'red';
+	for (var minu = 0; minu < 60; minu += 5) {
+		var ang = -Math.PI*2/60*(minu);
+		ang += minuoffset;
+		print(ctx, minu.toString(), r*Math.sin(ang), -r*Math.cos(ang), 0, ang);
+	}
+}
+
+
+function drawNumbers(ctx, radius, shariatClock, hours, houroffset) {
+  var fontface = '';
+  if (shariatClock) fontface = " 'B mitra'";
+  ctx.font = radius*0.2 + "px" + fontface;
+  ctx.textBaseline="middle";
+  ctx.textAlign="center";
+	
+	ctx.strokeStyle = 'red';
+	ctx.lineWidth = 2;
+  for(var num = 0; num < 60; num++){
+		var ang = num * (2 * Math.PI) / 60;
+		ctx.rotate(ang);
+		ctx.beginPath();
+		ctx.moveTo(0,-radius*0.95);
+		ctx.lineTo(0, -radius*0.92);
+		ctx.stroke();
+		ctx.rotate(-ang);
+	}
+	
+	ctx.lineWidth = 2;
+	ctx.strokeStyle = 'darkgray';
+	var direction = (shariatClock) ? 1 : -1;
+	ctx.fillStyle = 'black';
+  for(var num = 1; num <= hours; num++){			
+		var ang = -(num-1) * (2 * Math.PI) / hours;
+		ang *= direction;
+		ang += houroffset;
+		
+		var ang_ = ang;
+		if (shariatClock) { 
+			ang_ -= Math.PI / (hours);
+		}
+		ctx.rotate(ang_);
+		ctx.translate(0, -radius*0.71);
+		ctx.rotate(-ang_);
+		var numString = num.toString();
+		numString = ((num-1) % 12 + 1).toString();
+		ctx.fillText(numString, 0, 0);
+		ctx.rotate(ang_);
+		ctx.translate(0, radius*0.71);
+		ctx.rotate(-ang_);
+
+		ctx.rotate(ang);
+		if (num != 1) {
+			ctx.moveTo(0,-radius*0.55);
+			ctx.lineTo(0, -radius*(hours != 24 || num % 2 == 1 ? 0.95: 0.8));
+		}
+		else {
+			ctx.moveTo(0,-radius*0.25);
+			ctx.lineTo(0, -radius*0.95);
+		}
+		ctx.stroke();
+		ctx.rotate(-ang);
+
+  }
+}
+
+
+function drawHand(ctx, pos, length, width, color) {
+	ctx.strokeStyle = color;
+	ctx.beginPath();
+	ctx.lineWidth = width;
+	ctx.lineCap = "round";
+	ctx.moveTo(0,0);
+	ctx.rotate(-pos);
+	ctx.moveTo(0, length/10);
+	ctx.lineTo(0, -length);
+	ctx.stroke();
+	ctx.rotate(pos);
+}
+
+
+function drawHandOutlined(ctx, pos, length, width, color) {
+	drawHand(ctx, pos, length, width+1, 'black');
+	drawHand(ctx, pos, length, width, color);
+}
+
+
+function drawHands(ctx, radius, rots){
+    var hour = rots[0];
+    var minute = rots[1];
+    var second = rots[2];
+	
+    drawHandOutlined(ctx, hour, radius*0.6, radius*0.07, 'darkgray');    //hour
+    drawHandOutlined(ctx, minute, radius*0.86, radius*0.04, 'darkgray');//minute
+    drawHandOutlined(ctx, second, radius*0.85, radius*0.01, 'red');// second
+}
+
+function getClockConfigs(shariatClock, hours) {
+	var houroffset = (hours == 24) ? Math.PI/2 : - Math.PI;
+	var minuoffset = (hours == 24) ? 0 : - Math.PI;
+  return [houroffset, minuoffset]
+}
+
+
+function drawConvasClock(_canvas, now, shariatClock, hours) {
+	if (hours==0 || isNaN(hours)) hours = 24;
+
+  rets = getClockConfigs(shariatClock, hours);
+  var houroffset = rets[0];
+  var minuoffset = rets[1];
+  var rots = getClockRotations(now, shariatClock, hours, houroffset, minuoffset);
+
+	var ctx = _canvas.getContext("2d");
+	var radius = Math.min(_canvas.width, _canvas.height) / 2;
+	ctx.translate(radius, radius);
+	radius2 = radius * 0.90;
+
+  drawFace(ctx, radius2, shariatClock, hours, minuoffset);
+  drawNumbers(ctx, radius2, shariatClock, hours, houroffset);
+  drawHands(ctx, radius2, rots);
+
+  ctx.translate(-radius, -radius);
+}
+
+
+function makeCSSClock(saat1) {
+	if (saat1.getAttribute('data-hours') == '24') {
+	
+		for (var i = 0; i < 24; i ++) {
+		tick = document.getElementById('tick').cloneNode(true);
+		tick.style.transform = 'rotate(' + (i*360/24)+ 'deg) translate(0vmin, -1vmin) rotate(90deg)';
+		saat1.appendChild(tick);
+		}
+	}
+}
+
+
+function updateCSSClock(now, shariatClock, hours) {
+  rets = getClockConfigs(shariatClock, hours);
+  var houroffset = rets[0];
+  var minuoffset = rets[1];
+  var rots = getClockRotations(now, shariatClock, hours, houroffset, minuoffset);
+
+  var hour = rots[0];
+  var minute = rots[1];
+  var second = rots[2];
+	document.getElementById('hourhand').style.transform = 'rotate(' + (-Math.PI/2 - hour) + 'rad)';
+	document.getElementById('minutehand').style.transform = 'rotate(' + (-Math.PI/2 - minute) + 'rad)';
+	document.getElementById('secondhand').style.transform = 'rotate(' + (-Math.PI/2 - second) + 'rad)';
+}
+
+
+function drawClocks() {
+	const cclocks = document.getElementsByClassName("saat"); 
+	var now = getNowShariat(true);
+  for (let i = 0; i < cclocks.length; i++) {
+		var c = cclocks.item(i);
+		drawConvasClock(c, now, true, parseInt(c.getAttribute('data-hours')));
+	}
+
+
+	updateCSSClock(now, true, 24);
+
+	var pnow = document.getElementById("pnow");
+	pnow.innerHTML = (new Date()).toLocaleTimeString();
+	
+	var now = getNowShariat();
+	var hour = now.getHours();
+	var dayOrNight = (hour >= 12 || hour == 0);
+//	hour = (hour +12-1 ) % 12 + 1;
+	hour = hour % 12 + 1;
+	var weekday = now.toLocaleString('fa-ir', {  weekday: 'long' });
+	
+	document.getElementById("dailyzekr").innerHTML = "'" + hour.toString() + ':' + now.getMinutes() + ' ' + (dayOrNight ? 'روز' : 'شب') + ' ' + weekday + ' <div class="zekr">(' +getDailyZekr(now) + ')</div>';
+}
+
+ 
+</script>
+
+
+<p align=center>
+
+<div align=center>
+<div id='dailyzekr' style='display: inline-block; font-weight:bold; color:blue; font-size:7vmin;'>--</div>
+</div>
+
+<p align=center  width="70vmin" height="70vmin">
+<canvas class='saat' id="canvas2" width="400" height="400" data-hours='24'></canvas>
+</p>
+
+<div align=center style=' font-size:4vmin;'>
+ساعت غربی: <div id='pnow' style='align:center; display: inline-block;'></div>
+</div>
+</p>
+
+
+<section class='clock' id='saat1' data-hours='24' data-shariat-clock='True'>
+    <div id='tick' class="tick"></div>
+    <div class="label">روز</div>
+    <div class="labeli">شـــب</div>
+    <div id="hourhand" class="hourhand"></div>
+    <div id="minutehand" class="minutehand"></div>
+    <div id='secondhand' class="secondhand"></div>
+</section>
+
+
+<div class="wrap-collabsible"> <input id="collapsible2" class="toggle" type="checkbox" checked="0"> <label for="collapsible2" class="lbl-toggle">توضیحات</label><div class="collapsible-content"><div class="content-inner">
+1. تطبیق با خطای کمتر از 10% با مفهوم 12 ساعته بودن روز و 12 ساعته بودن شب. <br/>
+2. تطبیق با خطای کمتر از 10% با مفهوم شبانه روز شرعی (مثلا شب و روز نیمه شعبان یا شب و روز جمعه) <br/>
+3. نمایش مقدار رفته و  باقیمانده از روز و شب <br/>
+4. جانمایی صحیح نیمه روز و نیمه شب <br/>
+5. اصلاح جهت چرخش  مطابق گردش ظاهری خورشید و ستارگان<br/>
+6. اصلاح مفهوم طول ساعت و اشاره صحیح عقربه ساعت به محل دقیق در ساعت فعلی (ابتدا، میانه، انتهای ساعت فعلی)
+</div></div></div>
+
+<p align=center  width="60vmin" height="60vmin">
+<!-- <canvas id="canvas" class='saat' width="400" height="400" data-hours='12'></canvas> -->
+</p>
+
+</body>
+</html>
